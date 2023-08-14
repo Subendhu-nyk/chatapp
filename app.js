@@ -6,7 +6,7 @@ const User=require('./models/user')
 const userRouter=require('./routes/user')
 const path=require('path')
 const cors=require('cors')
-app.use(cors())
+app.use(cors({origin:"*"}))
 app.use(express.json());
 app.use(express.static(path.join(__dirname,'public')))
 app.use(express.static(path.join(__dirname,'public','html')))
