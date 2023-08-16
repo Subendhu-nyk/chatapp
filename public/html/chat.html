@@ -365,40 +365,83 @@ button{
                 console.log(err)
             }
         }
+        window.addEventListener('DOMContentLoaded', () => {
+    fetchAndDisplayChatData(); // Fetch and display chat data immediately
+    setInterval(fetchAndDisplayChatData, 1000); // Call the function every 1 second
+});
 
-        window.addEventListener('DOMContentLoaded', async ()=> {
-            try{
-                const token=localStorage.getItem('token')           
-   const response= await axios.get('http://localhost:3000/chat/user', { headers: {"Authorization" : token} }) 
-      console.log(response.data.allChatData)
-      const data=response.data.allChatData
-        if(response.status === 200){
-            data.forEach(chat => {
-                
-                const messagescreen = document.getElementById('messagebox');              
-                const divItem=document.createElement('div')
-                    divItem.style.border='1px solid black'
-                    divItem.style.width='40%'
-                    divItem.style.padding='10px 10px'
-                    divItem.style.margin='12px 5px'
-                    divItem.style.borderRadius='0px 12px 10px 10px'
-                    divItem.style.backgroundColor='#fdfdfd'
-                    
-                 const listItem = document.createElement('li');
-                 listItem.style.listStyle='none'
-                    listItem.textContent = chat.message; 
+async function fetchAndDisplayChatData() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3000/chat/user', { headers: { "Authorization": token } });
 
-                    divItem.appendChild(listItem)
-                    messagescreen.appendChild(divItem);                
-            })
+        if (response.status === 200) {
+            const data = response.data.allChatData;
+            updateChatUI(data);
         } else {
             throw new Error();
-        }  
+        }
+    } catch (err) {
+        console.log(err);
+    }
 }
-catch(err){
-    console.log(err)
+
+function updateChatUI(messages) {
+    const messagescreen = document.getElementById('messagebox');
+    messagescreen.innerHTML = ''; // Clear existing messages
+
+    messages.forEach(chat => {
+        const divItem = document.createElement('div');
+        divItem.style.border = '1px solid black';
+        divItem.style.width = '40%';
+        divItem.style.padding = '10px 10px';
+        divItem.style.margin = '12px 5px';
+        divItem.style.borderRadius = '0px 12px 10px 10px';
+        divItem.style.backgroundColor = '#fdfdfd';
+
+        const listItem = document.createElement('li');
+        listItem.style.listStyle = 'none';
+        listItem.textContent = chat.message;
+
+        divItem.appendChild(listItem);
+        messagescreen.appendChild(divItem);
+    });
 }
-});
+
+
+//         window.addEventListener('DOMContentLoaded', async ()=> {
+//             try{
+//                 const token=localStorage.getItem('token')           
+//    const response= await axios.get('http://localhost:3000/chat/user', { headers: {"Authorization" : token} }) 
+//       console.log(response.data.allChatData)
+//       const data=response.data.allChatData
+//         if(response.status === 200){
+//             data.forEach(chat => {
+                
+//                 const messagescreen = document.getElementById('messagebox');              
+//                 const divItem=document.createElement('div')
+//                     divItem.style.border='1px solid black'
+//                     divItem.style.width='40%'
+//                     divItem.style.padding='10px 10px'
+//                     divItem.style.margin='12px 5px'
+//                     divItem.style.borderRadius='0px 12px 10px 10px'
+//                     divItem.style.backgroundColor='#fdfdfd'
+                    
+//                  const listItem = document.createElement('li');
+//                  listItem.style.listStyle='none'
+//                     listItem.textContent = chat.message; 
+
+//                     divItem.appendChild(listItem)
+//                     messagescreen.appendChild(divItem);                
+//             })
+//         } else {
+//             throw new Error();
+//         }  
+// }
+// catch(err){
+//     console.log(err)
+// }
+// });
 
 
     </script>
