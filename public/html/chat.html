@@ -217,7 +217,7 @@ button{
                         </div>
                     </div>
                     <div class="row messagebox border-4 border-bottom bg-gradient ">
-                        <div class="col-12  py-5"></div>
+                        <div class="col-12 py-5" id="messagebox"></div>
                     </div>
                     <div class="row  ">
                         <div class="col-12 py-2 ">
@@ -365,6 +365,42 @@ button{
                 console.log(err)
             }
         }
+
+        window.addEventListener('DOMContentLoaded', async ()=> {
+            try{
+                const token=localStorage.getItem('token')           
+   const response= await axios.get('http://localhost:3000/chat/user', { headers: {"Authorization" : token} }) 
+      console.log(response.data.allChatData)
+      const data=response.data.allChatData
+        if(response.status === 200){
+            data.forEach(chat => {
+                
+                const messagescreen = document.getElementById('messagebox');              
+                const divItem=document.createElement('div')
+                    divItem.style.border='1px solid black'
+                    divItem.style.width='40%'
+                    divItem.style.padding='10px 10px'
+                    divItem.style.margin='12px 5px'
+                    divItem.style.borderRadius='0px 12px 10px 10px'
+                    divItem.style.backgroundColor='#fdfdfd'
+                    
+                 const listItem = document.createElement('li');
+                 listItem.style.listStyle='none'
+                    listItem.textContent = chat.message; 
+
+                    divItem.appendChild(listItem)
+                    messagescreen.appendChild(divItem);                
+            })
+        } else {
+            throw new Error();
+        }  
+}
+catch(err){
+    console.log(err)
+}
+});
+
+
     </script>
 
  

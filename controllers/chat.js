@@ -33,3 +33,16 @@ catch(err){
     res.status(500).json({ error: err }); 
 }
 }
+
+exports.userGetChat=async (req,res)=>{
+    try{
+        const chatdata= await Chat.findAll({
+            where:{userId:req.user.id}
+        })
+        res.status(200).json({allChatData:chatdata})
+    }
+    catch(err){
+        console.log(err)
+        res.status(500).json({error:err})
+    }
+}

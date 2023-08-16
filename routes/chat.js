@@ -18,6 +18,6 @@ router.get('/chat',(req,res)=>{
 })
 
 router.post('/chat',chatauthentication.authenticate,chatController.userChat)
-
+router.get('/chat/user',chatauthentication.authenticate,chatController.userGetChat)
 
 module.exports=router;
