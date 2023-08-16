@@ -221,7 +221,8 @@ button{
                     </div>
                     <div class="row  ">
                         <div class="col-12 py-2 ">
-                            <form method="post">
+                            <!-- chat data though form -->
+                            <form method="post" onsubmit="chatData(event)">
                                 <div class="row">
                                     <div class="col-lg-9">
                                 <input class="form-control" type="text" name="message" id="message">
@@ -284,10 +285,10 @@ button{
                         <div class="col-lg-2">
                             <i class="fa-solid fa-bell" style="color: #7e7f81;font-size: 25px"></i>
                         </div>
-                        <div class="col-lg-8">
+                        <div class="col-lg-7">
                             <p>Mute Notification</p>
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-3 ps-4">
                             <label class="switch">
                                 <input type="checkbox">
                                 <span class="slider round"></span>
@@ -322,7 +323,7 @@ button{
                         </div>
                         </div>
                         </div>
-                        <div class="col-12 mb-1 ">
+                        <div class="col-12 pb-4 ">
                             <div class="row">
                         <div class="col-lg-2">                           
                             <i class="fa-solid fa-trash" style="color: #ee4444;font-size: 25px"></i>                                                 
@@ -345,6 +346,26 @@ button{
     </section>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script>
+        async function chatData(event){
+
+            event.preventDefault();
+            const message=document.getElementById('message').value
+
+            const obj={
+                message,
+            }
+            console.log(obj)
+            try{
+                const token=localStorage.getItem('token')
+            const response=await axios.post('http://localhost:3000/chat',obj,{headers:{'Authorization':token}})
+            console.log(response.data)
+            }
+            catch(err){
+                console.log(err)
+            }
+        }
+    </script>
 
  
 </body>

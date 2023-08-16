@@ -47,10 +47,11 @@ const postUser=async(req,res)=>{
     }
 }
 
-function generateAccessToken(id,name)
-{
-    return jwt.sign({userId:id,name:name},'secretkey@98sh856ru454t45izklk')
-}
+function generateAccessToken(id,name){
+    return jwt.sign({userId:id,name:name},'98sh856ru454t45izklk')
+  }
+
+
 
 const getUser=async (req,res)=>{
     try{
