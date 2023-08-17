@@ -176,7 +176,7 @@ button{
                             <i class="bi-person-circle text-center fs-1"></i>
                         </div>
                         <div class="col-6  pt-2 border-end">
-                            <h6>Contact Name</h6>
+                            <div id="userprofilename"></div>
                             <p>Status</p>
                         </div>
                         <div class="col-3 pt-2">
@@ -216,8 +216,10 @@ button{
                             <i class="bi bi-bell fs-5"></i>
                         </div>
                     </div>
-                    <div class="row messagebox border-4 border-bottom bg-gradient ">
-                        <div class="col-12 py-5" id="messagebox"></div>
+                    <div class="row messagebox border-4 border-bottom bg-gradient  ">
+                        <div class="col-12 py-5"  id="messagebox">
+
+                        </div>
                     </div>
                     <div class="row  ">
                         <div class="col-12 py-2 ">
@@ -347,7 +349,8 @@ button{
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
     <script>
-        async function chatData(event){
+       
+       async function chatData(event){
 
             event.preventDefault();
             const message=document.getElementById('message').value
@@ -359,25 +362,32 @@ button{
             try{
                 const token=localStorage.getItem('token')
             const response=await axios.post('http://localhost:3000/chat',obj,{headers:{'Authorization':token}})
-            console.log(response.data)
+            console.log(response.data) 
+            fetchAndDisplayChatData(); 
+            
             }
             catch(err){
                 console.log(err)
             }
         }
-        window.addEventListener('DOMContentLoaded', () => {
-    fetchAndDisplayChatData(); 
-    setInterval(fetchAndDisplayChatData, 1000); // Call the function every 1 second
+
+        window.addEventListener('DOMContentLoaded', () => {    
+            
+    setInterval( updateChatUI, 1000); // Call the function every 1 second
 });
 
+
+const max_msg = 5;
 async function fetchAndDisplayChatData() {
     try {
         const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:3000/chat/user', { headers: { "Authorization": token } });
 
         if (response.status === 200) {
-            const data = response.data.allChatData;           
-            updateChatUI(data);
+            const data = response.data.allChatData;         
+            
+            const lastMessages = data.slice(-max_msg);
+            localStorage.setItem('lastMessages', JSON.stringify(lastMessages));
         } else {
             throw new Error();
         }
@@ -386,10 +396,11 @@ async function fetchAndDisplayChatData() {
     }
 }
 
-function updateChatUI(messages) {
-    const messagescreen = document.getElementById('messagebox');
-    messagescreen.innerHTML = ''; // Clear existing messages
 
+function updateChatUI() {
+    const messagescreen = document.getElementById('messagebox');
+    messagescreen.innerHTML = ''; // Clear existing messages   
+    let messages=JSON.parse(localStorage.getItem('lastMessages')) 
     messages.forEach(chat => {
         const divItem = document.createElement('div');        
         divItem.style.border = '1px solid black';
@@ -441,7 +452,7 @@ function userProfileVisible(){
 }
 
 userProfileVisible()
-        
+
     </script>
 
  
