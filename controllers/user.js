@@ -85,9 +85,19 @@ const getUser=async (req,res)=>{
     }
 }
 
+const getAllUser=async(req,res)=>{
+    try{
+    const user=await User.findAll()
+    return res.status(200).json({success:true,allUserData:user});
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
 
 module.exports={
-  postUser,getUser,generateAccessToken
+  postUser,getUser,generateAccessToken,getAllUser
 }
 
 

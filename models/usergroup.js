@@ -1,7 +1,7 @@
 const Sequelize=require('sequelize')
 const sequelize=require('../util/chat')
 
-const chat=sequelize.define('chat',{
+const usergroup=sequelize.define('usergroup',{
     id:{
         type:Sequelize.INTEGER,
         autoIncrement:true,
@@ -9,11 +9,6 @@ const chat=sequelize.define('chat',{
         primaryKey:true,
         unique:true
     },   
-    message:{
-        type:Sequelize.STRING,   
-        allowNull:false,
-    }  
-
 })
 
-module.exports=chat;
+module.exports=usergroup;

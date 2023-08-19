@@ -204,15 +204,22 @@ button{
                                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                              <form method="post" onsubmit="modal1(event)">
-                                                <div class="mb-3">
-                                                  <label for="proname" class="col-form-label">Add group participant</label>
-                                                  <input type="text" class="form-control" id="proname">
-                                                </div>
+                                              <form method="post" onsubmit="createGroup(event)">                                                                                             
                                                 <div class="mb-3">
                                                   <label for="proname" class="col-form-label">Add group name</label>
                                                   <input type="text" class="form-control" id="groupname">
                                                 </div>
+                                                <div class="mb-3">
+                                                    <label for="proname" class="col-form-label">Add group participant</label>
+                                                    <div class="dropdown">
+                                                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Select Participant
+                                                      </button>                                                    
+                                                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="dropdownItemList">
+                                                        <!-- Dynamic items will be inserted here -->
+                                                      </ul>
+                                                    </div>
+                                                  </div>
                                              
                                             </div>
                                             <div class="modal-footer">
@@ -263,7 +270,7 @@ button{
                         </div>   -->
                      <div class="col-12  border-end " id="alluserlist">
                        
-                     </div>  
+                     </div>                     
                      <!-- <div class="col-3 d-flex align-items-center">
                         <i class="fa-solid fa-circle" style="color: #38c24f;"></i>
                      </div>   -->
@@ -480,6 +487,7 @@ async function fetchAndDisplayChatData() {
         const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:3000/chat/user', { headers: { "Authorization": token } });
         console.log(response)
+        
         if (response.status === 200) {
             const data = response.data.allChatData;         
             console.log(response)
@@ -498,7 +506,10 @@ function updateChatUI() {
     const messagescreen = document.getElementById('messagebox');
     messagescreen.innerHTML = ''; // Clear existing messages   
     let messages=JSON.parse(localStorage.getItem('lastMessages')) 
+    const token=localStorage.getItem('token')
+        const decodeToken=parseJwt(token) 
     messages.forEach(chat => {
+        if(chat.userId==decodeToken.userId){
         const divItem = document.createElement('div');        
         divItem.style.border = '1px solid black';
         divItem.style.width = '40%';
@@ -523,6 +534,7 @@ function updateChatUI() {
         divItem.appendChild(listItem);
         divItem.appendChild(time)
         messagescreen.appendChild(divItem);
+        }
     });
     
 }
@@ -554,8 +566,8 @@ let max_user=5
 async function userlist() {
     try {
         const parentElement = document.getElementById('alluserlist');
-        const response = await axios.get('http://localhost:3000/chat/group');
-        const data = response.data.allUser;
+        const response = await axios.get('http://localhost:3000/user/alluser');
+        const data = response.data.allUserData;
         const allusersdata= data.slice(-max_user);
             localStorage.setItem('alluserdetails', JSON.stringify(allusersdata));
         if (response.status === 200) {            
@@ -588,22 +600,109 @@ async function userlist() {
     }
 }
 
-userlist();
 
 
 
+document.addEventListener("DOMContentLoaded", function() {
+    const dropdownItemList = document.getElementById("dropdownItemList");
 
-async function modal1(event){
+    const items = JSON.parse(localStorage.getItem('alluserdetails'))
+            console.log("items>>",items)
+    items.forEach(item => {
+      const listItem = document.createElement("li");
+      listItem.innerHTML = `
+        <a class="dropdown-item" href="#">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="${item.name}" id="${item.id}" />
+            <label class="form-check-label" for="${item.id}">${item.name}</label>
+          </div>
+        </a>
+      `;
+      dropdownItemList.appendChild(listItem);
+    });
+  });
+
+
+
+async function createGroup(event){
         event.preventDefault();
-        var name=document.getElementById('proname').value
-        var group=document.getElementById('groupname').value
-
+    
+        var groupname=document.getElementById('groupname').value 
         const obj={
-            name,group
-        }
-        console.log(obj)
+            name,
+            groupname,
+            members: getCheckedMembers()
 
+        }
+        localStorage.setItem("groupname",JSON.stringify(obj))
+        
+        try{
+        const token = localStorage.getItem('token');
+        const response=await axios.post('http://localhost:3000/chat/creategroup',obj,{headers:{'Authorization':token}})
+        console.log(response.data)         
+        }
+        catch(err){
+            console.log("group data error",err)
+        }
     }
+
+
+    function getCheckedMembers() {
+  const checkedMembers = [];
+  const checkboxes = document.querySelectorAll('.form-check-input[type="checkbox"]');
+  
+  checkboxes.forEach(checkbox => {
+    if (checkbox.checked) {
+      const memberId = checkbox.getAttribute('id');
+      checkedMembers.push(memberId);
+    }
+  });
+
+  return checkedMembers;
+}
+
+
+async function getGroups() {
+    userlist();
+    const parentElement = document.getElementById('alluserlist');
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3000/chat/getgroup', { headers: { 'Authorization': token } });
+        console.log("groups data", response.data.allGroupData);
+        data = response.data.allGroupData;
+
+        data.forEach(group => {
+            const divItem = document.createElement('li');
+            divItem.style.display = 'block';
+            divItem.style.padding = '5px 10px';
+            divItem.style.margin = '0px 5px';
+            divItem.style.border = '1px 0px';
+
+            // Create an anchor tag and set its attributes
+            const anchorTag = document.createElement('a');
+            anchorTag.style.textDecoration = 'none';
+            anchorTag.href = '#' + group.groupname.toLowerCase(); // Set a unique URL using group name
+            anchorTag.textContent = group.groupname;
+            // Append the anchor tag to the list item
+            divItem.appendChild(anchorTag);
+
+            parentElement.appendChild(divItem);
+            const lineBreak = document.createElement('br');
+            parentElement.appendChild(lineBreak);
+        });
+
+    } catch (err) {
+        console.log("group data error", err);
+    }
+}
+
+getGroups();
+
+
+
+
+
+
 
      function status1(event){
         event.preventDefault();

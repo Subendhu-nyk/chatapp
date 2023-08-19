@@ -17,7 +17,8 @@ router.get('/chat',(req,res)=>{
     res.sendFile(path.join(__dirname,'..','html','chat.html'))
 })
 
-router.post('/chat',chatauthentication.authenticate,chatController.userChat)
+router.post('/chat',chatauthentication.authenticate,chatController.userPostChat)
 router.get('/chat/user',chatauthentication.authenticate,chatController.userGetChat)
+
 
 module.exports=router;

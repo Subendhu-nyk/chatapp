@@ -3,10 +3,13 @@ const app=express();
 const bodyParser=require('body-parser')
 const sequelize=require('./util/chat')
 const User=require('./models/user')
+const group=require('./models/groups')
+const userGroup=require('./models/usergroup')
 const Chat=require('./models/chat')
+
 const userRouter=require('./routes/user')
 const chatRouter=require('./routes/chat')
-const groupRouter=require('./routes/groupchat')
+const groupRouter=require('./routes/groups')
 const path=require('path')
 const cors=require('cors');
 const { HasMany } = require('sequelize');
@@ -22,6 +25,14 @@ app.use('/',groupRouter)
 
 User.hasMany(Chat);
 Chat.belongsTo(User);
+
+User.hasMany(userGroup);
+userGroup.belongsTo(User);
+
+group.hasMany(userGroup);
+userGroup.belongsTo(group)
+
+
 
 
 sequelize.sync({alter:true})
