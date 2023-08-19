@@ -148,6 +148,9 @@ button{
     transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 
 }
+.dropdown-toggle::after {
+    content: none;
+}
 
             
 
@@ -177,26 +180,101 @@ button{
                         </div>
                         <div class="col-6  pt-2 border-end">
                             <div id="userprofilename"></div>
-                            <p>Status</p>
+                            <p id="profilestatusupdate"></p>
                         </div>
                         <div class="col-3 pt-2">
-                            <i class="bi bi-pencil-square fs-3"></i>
+                            <div class="container">
+                                <div class="row">
+                        
+                                    <div class="dropdown">
+                                        <i class="fa-solid fa-ellipsis-vertical py-2 fs-3 dropdown-toggle" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"></i>                
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo" href="#">New Group</a></li>
+                                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#statusModal" data-bs-whatever="@mdo" href="#">Status</a></li>                  
+                                          <li><a class="dropdown-item" href="#">Starred Message</a></li>
+                                          <li><a class="dropdown-item" href="login.html">Log out</a></li>
+                                        </ul>
+                                    </div> 
+                                    
+                                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title" id="exampleModalLabel">Create a Group</h5>
+                                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <form method="post" onsubmit="modal1(event)">
+                                                <div class="mb-3">
+                                                  <label for="proname" class="col-form-label">Add group participant</label>
+                                                  <input type="text" class="form-control" id="proname">
+                                                </div>
+                                                <div class="mb-3">
+                                                  <label for="proname" class="col-form-label">Add group name</label>
+                                                  <input type="text" class="form-control" id="groupname">
+                                                </div>
+                                             
+                                            </div>
+                                            <div class="modal-footer">
+                                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                              <button type="submit" class="btn btn-primary">Create</button>
+                                            </div>
+                                          </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    
+                                      <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title" id="exampleStatusModalLabel">Edit Status</h5>
+                                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <form  onsubmit="status1(event)">
+                                                <div class="mb-3">
+                                                  <label for="statusupdate" class="col-form-label">Add New Status</label>
+                                                  <input type="text" class="form-control" id="statusupdate">
+                                                </div>                                          
+                                             
+                                            </div>
+                                            <div class="modal-footer">
+                                              <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                                              <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
+                                            </div>
+                                          </form>
+                                          </div>
+                                        </div>
+                                      </div>                         
+
+
+                                  </div>
+                                </div>
                         </div>
                     </div>        
 
-                    <div class="row my-4">
-                        <div class="col-3   d-flex justify-content-center">
-                            <i class="bi-person-circle text-center fs-3"></i>
-                        </div>  
-                     <div class="col-6  border-end  d-flex align-items-center">
-                        <h6>Contact Name</h6>
-                     </div>  
-                     <div class="col-3 d-flex align-items-center">
-                        <i class="fa-solid fa-circle" style="color: #38c24f;"></i>
-                     </div>  
-                    </div>
 
+
+                    <!-- All user list on left panel starts here  -->
+                    <div class="row my-4">
+                        <!-- <div class="col-3   d-flex justify-content-center">
+                            <i class="bi-person-circle text-center fs-3"></i>
+                        </div>   -->
+                     <div class="col-12  border-end " id="alluserlist">
+                       
+                     </div>  
+                     <!-- <div class="col-3 d-flex align-items-center">
+                        <i class="fa-solid fa-circle" style="color: #38c24f;"></i>
+                     </div>   -->
+                    </div>   
+                
                 </div>
+
+                 <!-- All user list on left panel ends here  -->
+
+
+                 <!-- Middle part with contact name and message box starts here -->
                 <div class="col-lg-6 ">
                     <div class="row rightcontactimg border-4 border-bottom bg-gradient">
                         <div class="col-lg-10">
@@ -216,13 +294,27 @@ button{
                             <i class="bi bi-bell fs-5"></i>
                         </div>
                     </div>
-                    <div class="row messagebox border-4 border-bottom bg-gradient  ">
-                        <div class="col-12 py-5"  id="messagebox">
 
+
+
+                    <!-- message will be visible here  -->
+
+                    <div class="row messagebox border-4 border-bottom bg-gradient  ">
+                        <div class="col-12 py-5">
+                            <ul id="messagebox">
+
+                            </ul>
                         </div>
                     </div>
+
+                    <!-- message visiblity will end here  -->
+                    
+
+
                     <div class="row  ">
                         <div class="col-12 py-2 ">
+
+                            <!-- user typing box starts here  -->
                             <!-- chat data though form -->
                             <form method="post" onsubmit="chatData(event)">
                                 <div class="row">
@@ -241,6 +333,13 @@ button{
                         </div>
                     </div>
                 </div>
+
+                 <!-- user typing box ends here  -->
+
+                     <!-- Middle part with contact name and message box starts here -->
+
+
+
                 <div class="col-lg-3 row1 border-4 border rightpan bg-gradient">
                     <div class="row bg-light border-4 border-bottom bg-gradient">
                         <div class="col-12  mt-1 d-flex justify-content-center">
@@ -301,7 +400,7 @@ button{
                         <div class="col-12 mb-3">
                             <div class="row">
                         <div class="col-lg-2">
-                            <i class="fa-solid fa-ban" style="color: #ee4444;font-size: 25px"></i>                            
+                            <i class="fa-solid fa-ban " style="color: #ee4444;font-size: 25px"></i>                            
                         </div>
                         <div class="col-lg-8">
                             <p>Block contact</p>
@@ -341,9 +440,7 @@ button{
                     </div>
                     
                 </div>
-               </div>
-
-                               
+               </div>                               
         </div>
     </section>
     
@@ -382,10 +479,10 @@ async function fetchAndDisplayChatData() {
     try {
         const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:3000/chat/user', { headers: { "Authorization": token } });
-
+        console.log(response)
         if (response.status === 200) {
             const data = response.data.allChatData;         
-            
+            console.log(response)
             const lastMessages = data.slice(-max_msg);
             localStorage.setItem('lastMessages', JSON.stringify(lastMessages));
         } else {
@@ -451,7 +548,84 @@ function userProfileVisible(){
         profilename.appendChild(childelement)
 }
 
-userProfileVisible()
+userProfileVisible()     
+
+let max_user=5
+async function userlist() {
+    try {
+        const parentElement = document.getElementById('alluserlist');
+        const response = await axios.get('http://localhost:3000/chat/group');
+        const data = response.data.allUser;
+        const allusersdata= data.slice(-max_user);
+            localStorage.setItem('alluserdetails', JSON.stringify(allusersdata));
+        if (response.status === 200) {            
+            console.log(data);
+            data.forEach(user => {
+                const divItem = document.createElement('li');              
+                divItem.style.display = 'block'; 
+                divItem.style.padding = '5px 10px';
+                divItem.style.margin = '0px 5px';
+                divItem.style.border = '1px 0px';
+
+                 // Create an anchor tag and set its attributes
+                 const anchorTag = document.createElement('a');
+                 anchorTag.style.textDecoration='none'
+                anchorTag.href = '#' + user.name.toLowerCase(); // Set a unique URL using user name
+                anchorTag.textContent = user.name;
+                // Append the anchor tag to the list item
+                divItem.appendChild(anchorTag);         
+
+                parentElement.appendChild(divItem);
+                const lineBreak = document.createElement('br');
+                parentElement.appendChild(lineBreak);
+            });
+
+        } else {
+            throw new Error();
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+userlist();
+
+
+
+
+async function modal1(event){
+        event.preventDefault();
+        var name=document.getElementById('proname').value
+        var group=document.getElementById('groupname').value
+
+        const obj={
+            name,group
+        }
+        console.log(obj)
+
+    }
+
+     function status1(event){
+        event.preventDefault();
+        var name=document.getElementById('statusupdate').value       
+
+        const obj={
+            name,
+        }        
+        localStorage.setItem('statusUpdate',JSON.stringify(obj)) 
+        
+    }
+    updatestatus()    
+    function updatestatus(){
+        const savedStatus = JSON.parse(localStorage.getItem('statusUpdate'));
+        const status = document.getElementById('profilestatusupdate');
+        status.textContent = savedStatus.name;
+    }
+
+
+
+
+
 
     </script>
 

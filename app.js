@@ -6,6 +6,7 @@ const User=require('./models/user')
 const Chat=require('./models/chat')
 const userRouter=require('./routes/user')
 const chatRouter=require('./routes/chat')
+const groupRouter=require('./routes/groupchat')
 const path=require('path')
 const cors=require('cors');
 const { HasMany } = require('sequelize');
@@ -17,6 +18,7 @@ app.use(bodyParser.urlencoded({extended:false}))
 
 app.use('/',userRouter)
 app.use('/',chatRouter)
+app.use('/',groupRouter)
 
 User.hasMany(Chat);
 Chat.belongsTo(User);
