@@ -19,6 +19,6 @@ router.get('/chat',(req,res)=>{
 
 router.post('/chat',chatauthentication.authenticate,chatController.userPostChat)
 router.get('/chat/user',chatauthentication.authenticate,chatController.userGetChat)
-
-
+router.get('/chat/group/:groupId', chatauthentication.authenticate, chatController.getGroupMessages);
+router.get('/chat/user/:userId',chatauthentication.authenticate, chatController.getChatWithUser);
 module.exports=router;

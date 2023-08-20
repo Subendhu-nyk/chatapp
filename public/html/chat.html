@@ -35,6 +35,7 @@
         }
         .rightcontactimg{
             background-color: #fbfbfb;
+            height:95px;
             box-shadow: 4px 8px 8px rgba(13, 110, 253, 0.6)
         }
         .main1{
@@ -164,7 +165,7 @@ button{
             <div class="collapse navbar-collapse justify-content-end" id="navbarTogglerDemo03">
                 <div class="d-flex">
                      <!-- <button class="btn btn-success me-4" id="premiumbtn">Buy Premium</button>                        -->
-                     <a href="/login.html"><button class="btn btn-primary mx-3">Logout</button></a>                                        
+                     <a href="login.html"><button class="btn btn-primary mx-3" id="logoutButton">Logout</button></a>                                        
                 </div>           
           </div>
         </div> 
@@ -285,13 +286,13 @@ button{
                 <div class="col-lg-6 ">
                     <div class="row rightcontactimg border-4 border-bottom bg-gradient">
                         <div class="col-lg-10">
-                            <div class="row py-3 ">
-                                <div class="col-3 d-flex justify-content-center">
-                                    <i class="bi-person-circle text-center fs-1"></i>
+                            <div class="row py-3 " >
+                                <div class="col-3 d-flex justify-content-center" id="onlineuserimg">
+                                  
                                 </div>
-                                <div class="col-6  py-2 d-flex align-items-center">
-                                    <h6 class="me-4">Contact Name</h6> 
-                                    <i class="fa-solid fa-circle" style="color: #38c24f;"></i>                               
+                                <div class="col-6  py-2 d-flex align-items-center" id="onlineusername">
+                                    
+                                                                  
                                 </div>                               
                             </div> 
                         </div>
@@ -307,7 +308,7 @@ button{
                     <!-- message will be visible here  -->
 
                     <div class="row messagebox border-4 border-bottom bg-gradient  ">
-                        <div class="col-12 py-5">
+                        <div class="col-12 py-5" id="groupdetails">
                             <ul id="messagebox">
 
                             </ul>
@@ -352,12 +353,12 @@ button{
                         <div class="col-12  mt-1 d-flex justify-content-center">
                             <i class="fa-solid fa-circle-user text-center " style="color: #afacac; font-size: 100px; padding-top: 20px;"></i>
                         </div>
-                        <div class="col-12  mt-2 d-flex  justify-content-center">                            
-                                <h6>Contact Name</h6>  
+                        <div class="col-12  mt-2 d-flex  justify-content-center" id="useronline">                            
+                                  
                             
                         </div>
                         <div class="col-12 mb-2 d-flex justify-content-center">                            
-                            <p>Status</p>                       
+                            <p></p>                       
                         </div>
                     </div>
                     <div class="row mt-2 py-3 bg-light border-4 border-bottom bg-gradient">
@@ -450,47 +451,96 @@ button{
                </div>                               
         </div>
     </section>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
     <script>
-       
-       async function chatData(event){
+const socket = io.connect('http://localhost:3000');
+socket.on('receive-message', (messageData) => {
+    // Update the chat UI when a new message is received
+    updateChatUIWithNewMessage(messageData);
+});
 
-            event.preventDefault();
-            const message=document.getElementById('message').value
+function sendMessage(messageData) {
+    socket.emit('new-message', messageData);
+}
 
-            const obj={
-                message,
-            }
-            console.log(obj)
-            try{
-                const token=localStorage.getItem('token')
-            const response=await axios.post('http://localhost:3000/chat',obj,{headers:{'Authorization':token}})
-            console.log(response.data) 
-            fetchAndDisplayChatData(); 
-            
-            }
-            catch(err){
-                console.log(err)
-            }
-        }
+async function chatData(event) {
+    const selectedUserId = localStorage.getItem('selectedUserId'); 
+    const token = localStorage.getItem('token');
+    const decodedToken = parseJwt(token);
+const currentUserId = decodedToken.userId;
+    event.preventDefault();
+    const message = document.getElementById('message').value;
+    const selectedGroupId = localStorage.getItem('selectedGroupId');
 
-        window.addEventListener('DOMContentLoaded', () => {    
-            
-    setInterval( updateChatUI, 1000); // Call the function every 1 second
+    const obj = {
+        message,
+        groupId: selectedGroupId || null,
+        userId: currentUserId,  
+    recipientId: selectedUserId 
+
+
+    };
+    console.log("this is obj", obj);
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.post('http://localhost:3000/chat', obj, { headers: { 'Authorization': token } });
+        console.log("this is chat post response", response.data);
+        sendMessage(obj);
+        fetchAndDisplayChatData();
+    } catch (err) {
+        console.log(err);
+    }
+}
+   
+// function sendMessage(messageData) {
+//     // Emitting the message to the WebSocket server
+//     socket.emit('new-message', messageData);
+//     // Join the group if it's a group chat
+//     if(messageData.groupId) {
+//         socket.emit('join-group', messageData.groupId);
+//     }
+// }
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    setInterval(updateChatUI, 1000);  // Call the function every 1 second
+    localStorage.removeItem('selectedGroupId');
+    localStorage.removeItem('selectedUserId');
 });
 
 
+
+
 const max_msg = 5;
+
 async function fetchAndDisplayChatData() {
+    const selectedGroupId = localStorage.getItem('selectedGroupId');
+    const selectedUserId = localStorage.getItem('selectedUserId');
+
+    let url, dataKey;
+    if (selectedGroupId) {
+        url = `http://localhost:3000/chat/group/${selectedGroupId}`;
+        dataKey = 'messages';
+    } else if (selectedUserId) {
+        url = `http://localhost:3000/chat/user/${selectedUserId}`;
+        dataKey = 'messages'; 
+    } else {
+        url = 'http://localhost:3000/chat/user';
+        dataKey = 'allChatData';
+    }
+
+    console.log("dataKey:", dataKey);
+
     try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3000/chat/user', { headers: { "Authorization": token } });
-        console.log(response)
-        
+        const response = await axios.get(url, { headers: { "Authorization": token } });
+        console.log("API Response:", response);
+
         if (response.status === 200) {
-            const data = response.data.allChatData;         
-            console.log(response)
+            const data = response.data[dataKey];
+            console.log("Fetched chat data:", data);
             const lastMessages = data.slice(-max_msg);
             localStorage.setItem('lastMessages', JSON.stringify(lastMessages));
         } else {
@@ -501,43 +551,41 @@ async function fetchAndDisplayChatData() {
     }
 }
 
-
 function updateChatUI() {
     const messagescreen = document.getElementById('messagebox');
-    messagescreen.innerHTML = ''; // Clear existing messages   
-    let messages=JSON.parse(localStorage.getItem('lastMessages')) 
-    const token=localStorage.getItem('token')
-        const decodeToken=parseJwt(token) 
+    messagescreen.innerHTML = ''; // Clear existing messages
+    let messages = JSON.parse(localStorage.getItem('lastMessages'));
+    const token = localStorage.getItem('token');
+    const decodeToken = parseJwt(token);
     messages.forEach(chat => {
-        if(chat.userId==decodeToken.userId){
-        const divItem = document.createElement('div');        
-        divItem.style.border = '1px solid black';
-        divItem.style.width = '40%';
-        divItem.style.padding = '10px 10px';
-        divItem.style.margin = '12px 5px';
-        divItem.style.borderRadius = '0px 12px 10px 10px';
-        divItem.style.backgroundColor = '#fdfdfd';
+        if (chat.userId == decodeToken.userId) {
+            const divItem = document.createElement('div');
+            divItem.style.border = '1px solid black';
+            divItem.style.width = '40%';
+            divItem.style.padding = '10px 10px';
+            divItem.style.margin = '12px 5px';
+            divItem.style.borderRadius = '0px 12px 10px 10px';
+            divItem.style.backgroundColor = '#fdfdfd';
 
-        const listItem = document.createElement('li');
-        listItem.style.listStyle = 'none';
-        listItem.textContent = chat.message;
+            const listItem = document.createElement('li');
+            listItem.style.listStyle = 'none';
+            listItem.textContent = chat.message;
 
-        const time=document.createElement('p')
-        time.style.margin='0px'
-        time.style.padding='0px'
-        time.classList='text-end'
-        const createdAt = new Date(chat.createdAt); // Convert string to Date object
-        const formattedTime = `${createdAt.getDate()}-${createdAt.getMonth() + 1} ${createdAt.getHours()}:${createdAt.getMinutes()}`;
-        time.textContent = formattedTime;
-        
+            const time = document.createElement('p');
+            time.style.margin = '0px';
+            time.style.padding = '0px';
+            time.classList = 'text-end';
+            const createdAt = new Date(chat.createdAt);
+            const formattedTime = `${createdAt.getDate()}-${createdAt.getMonth() + 1} ${createdAt.getHours()}:${createdAt.getMinutes()}`;
+            time.textContent = formattedTime;
 
-        divItem.appendChild(listItem);
-        divItem.appendChild(time)
-        messagescreen.appendChild(divItem);
+            divItem.appendChild(listItem);
+            divItem.appendChild(time);
+            messagescreen.appendChild(divItem);
         }
     });
-    
 }
+
 
 function parseJwt (token) {
     var base64Url = token.split('.')[1];
@@ -565,6 +613,8 @@ userProfileVisible()
 let max_user=5
 async function userlist() {
     try {
+        const token=localStorage.getItem('token')
+        const decodeToken=parseJwt(token)  
         const parentElement = document.getElementById('alluserlist');
         const response = await axios.get('http://localhost:3000/user/alluser');
         const data = response.data.allUserData;
@@ -572,24 +622,65 @@ async function userlist() {
             localStorage.setItem('alluserdetails', JSON.stringify(allusersdata));
         if (response.status === 200) {            
             console.log(data);
+            const userimgdiv = document.getElementById('onlineuserimg');
+            const useronlinename=document.getElementById('onlineusername')
+            const userdivright=document.getElementById('useronline')
+            
             data.forEach(user => {
+                if(user.name!=decodeToken.name){
+                const img=document.createElement('i')
+            img.classList="fa-solid fa-circle-user fs-2 me-2"          
+            img.style.padding='0px 0px'
+            img.style.color='#206ef3'
                 const divItem = document.createElement('li');              
                 divItem.style.display = 'block'; 
-                divItem.style.padding = '5px 10px';
+                divItem.style.padding = '0px 10px';
                 divItem.style.margin = '0px 5px';
                 divItem.style.border = '1px 0px';
 
-                 // Create an anchor tag and set its attributes
+                 //  an anchor tag and set its attributes
+                 divItem.appendChild(img)
                  const anchorTag = document.createElement('a');
                  anchorTag.style.textDecoration='none'
+                 anchorTag.style.color='black' 
+                 anchorTag.style.fontWeight='bold'
+                anchorTag.style.textTransform='capitalize'  
                 anchorTag.href = '#' + user.name.toLowerCase(); // Set a unique URL using user name
                 anchorTag.textContent = user.name;
+                anchorTag.setAttribute("data-type", "user");
                 // Append the anchor tag to the list item
+                anchorTag.addEventListener('click', () => {
+                    localStorage.setItem('selectedUserId', user.id);
+                    localStorage.removeItem('selectedGroupId');
+                    
+                    const userchildimg = document.createElement('i');
+                    const userchilddiv = document.createElement('h6');
+                    const usersubchild=document.createElement('h6')
+                    userchildimg.classList = 'fa-solid fa-circle-user fs-1';
+                    userchildimg.style.color='#206ef3'
+                    userchilddiv.style.textTransform='uppercase'
+                    userchilddiv.textContent = user.name;
+                    userchilddiv.classList = 'me-4';
+                    usersubchild.style.textTransform='uppercase'
+                    usersubchild.textContent = user.name;
+                    
+                    // Clear previous user information
+                    userimgdiv.innerHTML = '';
+                    useronlinename.innerHTML = '';
+                    userdivright.innerHTML = '';
+                    
+                    userimgdiv.appendChild(userchildimg);
+                    useronlinename.appendChild(userchilddiv);
+                    userdivright.appendChild(usersubchild)
+                    fetchAndDisplayChatData();
+                });
+
                 divItem.appendChild(anchorTag);         
 
                 parentElement.appendChild(divItem);
                 const lineBreak = document.createElement('br');
                 parentElement.appendChild(lineBreak);
+            }
             });
 
         } else {
@@ -624,6 +715,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
+
+
 async function createGroup(event){
         event.preventDefault();
     
@@ -632,14 +725,15 @@ async function createGroup(event){
             name,
             groupname,
             members: getCheckedMembers()
-
         }
-        localStorage.setItem("groupname",JSON.stringify(obj))
+        
         
         try{
         const token = localStorage.getItem('token');
         const response=await axios.post('http://localhost:3000/chat/creategroup',obj,{headers:{'Authorization':token}})
-        console.log(response.data)         
+        console.log("this is create group response", response.data.createdgroupdata) 
+        data=response.data.createdgroupdata
+        localStorage.setItem("groupname",JSON.stringify(data))        
         }
         catch(err){
             console.log("group data error",err)
@@ -661,43 +755,81 @@ async function createGroup(event){
   return checkedMembers;
 }
 
+function selectGroup(groupId) {
+    localStorage.setItem('selectedGroupId', groupId);
+    localStorage.removeItem('selectedUserId');
+    socket.emit('join-group', groupId);  // Joining the group's WebSocket channel
+    fetchAndDisplayChatData();
+    updateChatUI();
+}
+
+
+
 
 async function getGroups() {
     userlist();
     const parentElement = document.getElementById('alluserlist');
+    const userimgdiv = document.getElementById('onlineuserimg');
+    const useronlinename = document.getElementById('onlineusername');
+    const userdivright = document.getElementById('useronline');
     try {
         const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:3000/chat/getgroup', { headers: { 'Authorization': token } });
         console.log("groups data", response.data.allGroupData);
         data = response.data.allGroupData;
-
+        const messagebox = document.getElementById('messagebox');
+        const groupbox = document.getElementById('groupdetails');
         data.forEach(group => {
+            const img = document.createElement('i');
+            img.classList = "fa-solid fa-people-group fs-4 me-2";
+            img.style.border = '1px solid #00a884';
+            img.style.borderRadius = '50%';
+            img.style.color = '#00a884';
             const divItem = document.createElement('li');
             divItem.style.display = 'block';
             divItem.style.padding = '5px 10px';
             divItem.style.margin = '0px 5px';
             divItem.style.border = '1px 0px';
+            divItem.style.color = "black";
+            divItem.classList.add('group-item');
 
-            // Create an anchor tag and set its attributes
             const anchorTag = document.createElement('a');
             anchorTag.style.textDecoration = 'none';
-            anchorTag.href = '#' + group.groupname.toLowerCase(); // Set a unique URL using group name
+            anchorTag.style.color = 'black';
+            anchorTag.style.fontWeight = 'bold';
+            anchorTag.style.textTransform = 'capitalize';
+            anchorTag.classList.add('group-item');
+            anchorTag.href = '#' + group.groupname.toLowerCase();
             anchorTag.textContent = group.groupname;
-            // Append the anchor tag to the list item
-            divItem.appendChild(anchorTag);
+            anchorTag.setAttribute("data-type", "group");
 
+            anchorTag.addEventListener('click',  () => {
+                selectGroup(group.id);
+                // userimgdiv.appendChild(img)
+                // useronlinename.appendChild(divItem)
+                localStorage.setItem('selectedGroupId', group.id);
+                localStorage.removeItem('selectedUserId');
+                // Clear chat UI
+                const messagescreen = document.getElementById('messagebox');
+                messagescreen.innerHTML = '';
+                // Fetch and display chat data
+                fetchAndDisplayChatData();
+                // Update chat UI with the latest messages
+                updateChatUI();
+            });
+
+            divItem.appendChild(img);
+            divItem.appendChild(anchorTag);
             parentElement.appendChild(divItem);
             const lineBreak = document.createElement('br');
             parentElement.appendChild(lineBreak);
         });
-
     } catch (err) {
         console.log("group data error", err);
     }
 }
 
 getGroups();
-
 
 
 
@@ -721,7 +853,14 @@ getGroups();
         status.textContent = savedStatus.name;
     }
 
-
+    function logout() {
+        socket.disconnect();
+    
+    localStorage.removeItem('selectedGroupId');
+    localStorage.removeItem('selectedUserId');
+    localStorage.removeItem('token');
+}
+document.getElementById('logoutButton').addEventListener('click', logout);
 
 
 

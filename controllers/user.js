@@ -38,12 +38,12 @@ const postUser=async(req,res)=>{
 
         });
         console.log(data)
-        res.status(200).json({message:'new user created'})
+      return  res.status(200).json({message:'new user created'})
     })
     }
     catch(err){
         console.log(err)
-        res.status(500).json({error:"some error",err})
+      return  res.status(500).json({error:"some error",err})
     }
 }
 

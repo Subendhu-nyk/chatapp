@@ -35,12 +35,12 @@ const postGroupUser=async(req,res)=>{
        const groupdta= await userGroup.bulkCreate(userGroupData);
 
         console.log("this is groupdata>>>",data)
-        res.status(200).json({message:'new user created'})
+      return  res.status(200).json({message:'new user created',createdgroupdata:data})
    
     }
     catch(err){
         console.log(err)
-        res.status(500).json({error:"some error",err})
+    return    res.status(500).json({error:"some error",err})
     }
 }
 
@@ -54,12 +54,13 @@ const getGroupUser = async (req, res) => {
 
         const groupIds = userGroups.map(userGroup => userGroup.groupId);
         const groups = await groupUser.findAll({ where: { id: groupIds } });
+      return  res.status(200).json({ allGroupData: groups });
         console.log("groups>>>>",groups)
 
         res.status(200).json({ allGroupData: groups });
     } catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Some error", err });
+      return  res.status(500).json({ error: "Some error", err });
     }
 };
 
