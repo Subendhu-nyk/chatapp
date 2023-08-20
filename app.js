@@ -23,7 +23,12 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname,'public')))
 app.use(express.static(path.join(__dirname,'public','html')))
 app.use(bodyParser.urlencoded({extended:false}))
+const AWS = require('aws-sdk');
 
+const s3 = new AWS.S3({
+    accessKeyId: 'YOUR_AWS_ACCESS_KEY',
+    secretAccessKey: 'YOUR_AWS_SECRET_KEY'
+});
 
 io.on('connection', (socket) => {
     console.log('a user connected');
