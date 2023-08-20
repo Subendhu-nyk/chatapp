@@ -13,6 +13,17 @@ router.use(express.json());
 exports.userPostChat=async(req,res)=>{
     const transaction=await sequelize.transaction();
     console.log("user>>>>>",req.user)
+    if (req.files && req.files.file) {
+        const file = req.files.file;
+        const s3Params = {
+            Bucket: 'S3_BUCKET_NAME',
+            Key: Date.now() + '-' + file.name,
+            Body: file.data
+        };
+
+        const s3Response = await s3.upload(s3Params).promise();
+        const fileURL = s3Response.Location;     
+    }
     try{
         const message=req.body.message
         const chatId = req.body.chatId

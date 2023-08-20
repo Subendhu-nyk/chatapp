@@ -332,7 +332,8 @@ button{
                                     <div class="col-lg-3">
                                     <button class="button1" type="submit"><i class="fa-solid fa-play fs-2" style="color: #0659ea;"></i></button>
                                     
-                                <i class="bi bi-paperclip mx-1 fs-3"></i>                                
+                                <i class="bi bi-paperclip mx-1 fs-3"></i> 
+                                <input type="file" id="chatFile" accept="image/*, video/*" />                               
                                 <i class="bi bi-camera mx-1 fs-3" style="color: #0b5be5;"></i>
                                 <i class="fa-regular fa-face-smile mx-2 fs-3" style="color: #3253f5;"></i>
                             </div>
@@ -482,11 +483,22 @@ const currentUserId = decodedToken.userId;
 
     };
     console.log("this is obj", obj);
+    
+    const fileInput = document.getElementById('chatFile');
+    const file = fileInput.files[0];
+    const formData = new FormData();
+
+    formData.append("message", message);
+    formData.append("file", file);
 
     try {
         const token = localStorage.getItem('token');
-        const response = await axios.post('http://localhost:3000/chat', obj, { headers: { 'Authorization': token } });
-        console.log("this is chat post response", response.data);
+        const response = await axios.post('http://localhost:3000/chat', formData, {
+        headers: {
+            'Authorization': token,
+            'Content-Type': 'multipart/form-data'
+        }
+    });   console.log("this is chat post response", response.data);
         sendMessage(obj);
         fetchAndDisplayChatData();
     } catch (err) {
